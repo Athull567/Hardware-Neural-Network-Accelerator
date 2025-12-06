@@ -1,0 +1,71 @@
+<html>
+<head>
+    <title>Handwritten Digit Recognition</title>
+
+    <!-- CSS and javascript library -->
+    <link rel="stylesheet" href="../static/bootstrap.min.css">
+    <script src="../static/jquery-3.3.1.min.js"></script>
+    <script src="../static/popper.min.js"></script>
+    <script src="../static/bootstrap.min.js"></script>
+    <script src="../static/paper-core.min.js"></script>
+    <script src="../static/paper-full.min.js"></script>
+    <script type="text/javascript">
+        paper.install(window);
+        window.onload = function() {
+            var canvas = document.getElementById('my_canvas');
+            canvas.style.backgroundColor = 'black';
+            paper.setup(canvas);
+
+            var path;
+            var tool = new Tool();
+            tool.onMouseDown = function(event) {
+                path = new Path();
+                path.strokeColor = 'white';
+                path.strokeWidth = 15;
+                path.strokeCap = 'round';
+                path.strokeJoin = 'round';
+            }
+            tool.onMouseDrag = function(event) {
+                path.add(event.point);
+            }
+
+            document.getElementById('predict').onclick = function() {
+                var url = { base64str: canvas.toDataURL() }
+                $.post(window.location.origin, JSON.stringify(url), function(response) {
+                    console.log(response);
+                    $("#result").text(response.prediction);
+                });
+            }
+            document.getElementById('clear').onclick = function() {
+                paper.project.activeLayer.removeChildren();
+                paper.view.draw();
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="row h-100">
+            <div class="col-sm-12 my-auto">
+                <div class="w-50 m-2 mx-auto text-center">
+                    <h5>Please draw a digit here:</h5>
+                </div>
+                <div class="w-50 m-2 mx-auto text-center">
+                    <canvas id="my_canvas" width="280" height="280"></canvas>
+                </div>
+                <br>
+                <div class="w-50 m-2 mx-auto text-center">
+                    <div class="btn-group" role="group" aria-label="...">
+                        <button type="button" class="btn btn-warning" id="predict"><b>Predict</b></button>
+                        <button type="button" class="btn btn-default" id="clear">Clear</button>
+                    </div>
+                </div>
+                <br>
+                <div class="w-50 m-2 mx-auto text-center">
+                    <h5>The FPGA's predicted output: <h1><span class="badge badge-dark" id="result">NaN</span></h1></h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
